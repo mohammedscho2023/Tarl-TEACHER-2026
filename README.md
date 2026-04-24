@@ -4,10 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <title>TaRL Teacher Support | Offline‑First Sync | Firestore</title>
+    <!-- Tailwind + Font Awesome + Chart.js -->
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <!-- Firebase SDKs (modular) -->
+    <!-- Firebase SDK (modular) -->
     <script type="importmap">
         {
             "imports": {
@@ -108,6 +109,12 @@
 <script type="module">
     // ======================= FIREBASE CONFIGURATION =======================
     // 🔁 REPLACE WITH YOUR OWN FIREBASE CREDENTIALS (from Firebase Console)
+    // Step-by-step:
+    // 1. Go to https://console.firebase.google.com/
+    // 2. Create a project (or use existing)
+    // 3. Enable Firestore Database (start in test mode)
+    // 4. Project Settings → General → Your apps → Web (</>)
+    // 5. Copy the firebaseConfig object and paste below
     const firebaseConfig = {
         apiKey: "AIzaSyDummyReplaceWithYourActualKey",  // <--- CHANGE
         authDomain: "your-project.firebaseapp.com",      // <--- CHANGE
@@ -122,7 +129,7 @@
     import { 
         initializeFirestore, persistentLocalCache, persistentMultipleTabManager,
         collection, doc, addDoc, updateDoc, deleteDoc, onSnapshot, query, orderBy,
-        serverTimestamp, writeBatch
+        serverTimestamp
     } from "firebase/firestore";
 
     // Initialize app & Firestore with offline persistence (IndexedDB)
@@ -248,7 +255,7 @@
         let narrative = `📋 QUANTITATIVE SUMMARY (${students.length} students)\n• Reading proficient (Word+): ${pct}% (${proficient}/${students.length})\n• Average reading score: ${avgRead !== null ? avgRead+'%' : 'N/A'}\n• Total lesson plans: ${lessons.length}\n\n📊 Reading level distribution:\n  Beginner ${readingCounts.Beginner}, Letter ${readingCounts.Letter}, Word ${readingCounts.Word}, Paragraph ${readingCounts.Paragraph}\n\n📈 RECOMMENDATIONS:\n`;
         if(pct >= 80) narrative += "✅ Excellent: most students are at Word level or above. Focus on fluency and comprehension.\n";
         else if(pct >= 50) narrative += "⚠️ Good progress: more than half are progressing. Intensify support for Beginner/Letter groups.\n";
-        else narrative += "❌ Critical: majority are still at Beginner/Letter level. Prioritize letter recognition and phonics. Use peer coaching.\n";
+        else narrative += "❌ Critical: majority are still at Beginner/Letter level. Prioritize letter recognition and phonics.\n";
         if(avgRead !== null && avgRead < 50) narrative += "🔴 Low average reading scores. Reassess grouping and increase Reading Club frequency.\n";
         document.getElementById("narrativeText").innerText = narrative;
 
@@ -358,6 +365,13 @@
     startListeners();
     const syncSpan = document.getElementById("syncStatus");
     if(syncSpan) syncSpan.innerHTML = '<i class="fas fa-check-circle text-green-600"></i> Live sync (offline‑first)';
+</script>
+
+<!-- Simple Service Worker for offline caching of the app itself (optional but recommended) -->
+<script>
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.register('/sw.js').catch(err => console.warn('Service worker registration failed:', err));
+    }
 </script>
 </body>
 </html>
